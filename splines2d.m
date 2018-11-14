@@ -9,8 +9,8 @@
 
 ## PROBLEMA 2
 
-## NOMBRE:
-## CARNE:
+## NOMBRE: Josafat Vargas Gamboa
+## CARNE:  2013030892
 2;
 
 
@@ -41,7 +41,7 @@ function fpp=findDerivs(t,f)
   N=length(t)-1; # Número de subintervalos
   
   ## Arme el sistema de ecuaciones
-  M=eye(N+1,N+1);
+  M  =eye(N+1,N+1);
   fpp=zeros(N+1,1);
   b  =zeros(N+1,1);
 
@@ -105,6 +105,14 @@ ylabel("f(t)");
 ## El caso completo
 N=10;
 D = createData(N);
+
+## ##################
+## ## Problema 2.6 ##
+## ##################
+
+## >>> Ponga su solución aquí <<<
+D = [D; D(1,1), D(1,2)] #Add first points at the end
+
 figure(1,"name","Interpolación 2D cerrada");
 hold off;
 plot(D(:,1),D(:,2),'rx-',"linewidth",2);
@@ -114,11 +122,6 @@ t=0:step:N-step;
 xs=interpole([0:N-1]',D(:,1),t);
 ys=interpole([0:N-1]',D(:,2),t);
 
-## ##################
-## ## Problema 2.6 ##
-## ##################
-
-## >>> Ponga su solución aquí <<<
 
 hold on;
 plot(xs,ys,'bo-');
