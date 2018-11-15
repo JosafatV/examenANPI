@@ -35,10 +35,10 @@ endfunction
 ## x: posiciones x de las muestras
 ## f: valores de la función en cada x
 ## retorne fpp con los valores de la segunda derivada en cada posición t
-function fpp=findDerivs(t,f)
-  assert(size(f)==size(t));
+function fpp=findDerivs(x, f)
+  #assert(length(f)==length(x));
 
-  N=length(t)-1; # Número de subintervalos
+  N=length(x)-1; # Número de subintervalos
   
   ## Arme el sistema de ecuaciones
   M  =eye(N+1,N+1);
@@ -50,11 +50,30 @@ function fpp=findDerivs(t,f)
   ## ################## 
 
   ## >>> Ponga su solución aquí <<<
-
+  for i = 1:N
+    imo = i-1;
+    ipo = i+1;
+    
+    # wrap-around
+    if (ipo>N)
+      ipo = 1;
+    endif
+    if (imo == 0)
+      imo = N;
+    endif
+    
+    # isnert values
+    M(i,imo)=x(i)-x(imo);
+    M(i,i  )=x(ipo)-x(imo);
+    M(i,ipo)=x(ipo)-x(i);
+    
+    b(i) = (6*(f(ipo)-f(i))/(x(ipo)-x(i)) )-( 6*(f(i)-f(imo))/(x(i)-x(imo)) );
+    
+  endfor
 
   
   ## Resuelva el sistema
-  fpp = M\b; 
+  fpp = M\b;
   
 endfunction
 
@@ -64,9 +83,11 @@ endfunction
 ## ts: valores en donde debe encontrarse la función interpolada
 ## retorna fs: valores de la función en los xs dados
 function fs=interpole(t,f,ts)
-  assert(size(t)==size(f));
+  #assert(length(t)==length(f));
 
   ts=ts(:); ## Asegúrese de que es un vector columna
+  fs=zeros(size(ts));
+  N = length(t)-1;
   
   ## Encuentre las segundas derivadas
   fpp=findDerivs(t,f);
@@ -74,13 +95,13 @@ function fs=interpole(t,f,ts)
   ## ##################
   ## ## Problema 2.5 ##
   ## ##################
-
-  ## >>> Ponga su solución aquí <<<
   
-  ## Sugerencia: Puede serle muy útil el uso de la función 'lookup'
-  ##             para encontrar cuál subintervalo utilizar.
-
-  fs=zeros(size(ts));
+  # turns a value of ts into a valid index for t
+  # allows the insertion of ts to get a vector with all the corresponding index
+  i = @(index) lookup(t, index, "l");
+  
+  
+  
 endfunction
 
 ## Depuración
@@ -102,6 +123,8 @@ grid on;
 xlabel("t");
 ylabel("f(t)");
 
+
+
 ## El caso completo
 N=10;
 D = createData(N);
@@ -110,8 +133,7 @@ D = createData(N);
 ## ## Problema 2.6 ##
 ## ##################
 
-## >>> Ponga su solución aquí <<<
-D = [D; D(1,1), D(1,2)] #Add first points at the end
+D = [D; D(1,1), D(1,2)]; #Add first points at the end
 
 figure(1,"name","Interpolación 2D cerrada");
 hold off;
