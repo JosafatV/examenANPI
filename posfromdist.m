@@ -9,8 +9,8 @@
 
 ## PROBLEMA 3
 
-## NOMBRE:
-## CARNE:
+## NOMBRE: Josafat Vargas Gamboa
+## CARNE:  2013030892
 
 3;
 ## Cargue los datos de distancias
@@ -44,8 +44,17 @@ function p=calcPosition(dists,emisorPos,option=1)
   ## ##################
   ## ## Problema 3.1 ##
   ## ##################
-  ## Construya la matriz M
-  M  = zeros(dim,4); ## <<< Ponga su solución aquí
+  
+  M = zeros(dim,4); 
+  M(:,1) = M(:,1).+1; # Fill first column
+  
+    ## Fill in the positions
+  for i = 1:dim
+    ei = [0; emisorPos(:,i)]; # make a 4x1 column with the position of one emitter
+    M(i,:) = M(i,:) + transpose(ei); # fill the row by adding the position
+  endfor
+  
+  display (M)
 
   ## ##################
   ## ## Problema 3.2 ##
