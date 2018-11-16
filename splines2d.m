@@ -82,12 +82,12 @@ endfunction
 ## f: valores de la función en los x conocidos
 ## ts: valores en donde debe encontrarse la función interpolada
 ## retorna fs: valores de la función en los xs dados
-function fs=interpole(t,f,ts)
+function fs = interpole(t,f,ts)
   #assert(length(t)==length(f));
 
   ts=ts(:); ## Asegúrese de que es un vector columna
   fs=zeros(size(ts));
-  N = length(t)-1;
+  N = length(ts)-1;
   
   ## Encuentre las segundas derivadas
   fpp=findDerivs(t,f);
@@ -95,12 +95,37 @@ function fs=interpole(t,f,ts)
   ## ##################
   ## ## Problema 2.5 ##
   ## ##################
-  
-  # turns a value of ts into a valid index for t
-  # allows the insertion of ts to get a vector with all the corresponding index
-  i = @(index) lookup(t, index, "l");
-  
-  
+  pool = 1:length(t);
+
+  for h = 1:length(ts)
+    
+    # turns a value of ts into a valid index for t
+    # allows the insertion of ts to get a vector with all the corresponding index
+    i = lookup(pool, ts(h), "r") + 1;
+    l = i-1;
+    
+    # wrap-around
+    if (l == 0)
+      l = length(t);
+    endif
+
+    #common expression
+    titl = t(i)-t(l);
+    tlti = t(l)-t(i);
+
+    # cubic parts
+    tsi3 = (ts(h)-t(i)) * (ts(h)-t(i)) * (ts(h)-t(i));
+    tsl3 = (ts(h)-t(l)) * (ts(h)-t(l)) * (ts(h)-t(l));
+    
+    # calculate in components
+    A = (fpp(l) * tsi3) / (6*tlti);
+    B = (fpp(i) * tsl3) / (6*titl);
+    C = (f(l) / tlti) - (fpp(l) * (tlti) / 6);
+    D = (f(i) / titl) - (fpp(i) * (titl) / 6);
+
+    # calculate value
+    fs(h) = (A + C*(ts(h)-t(i))) + (B + D*(ts(h)-t(l)));
+  endfor
   
 endfunction
 
@@ -123,8 +148,6 @@ grid on;
 xlabel("t");
 ylabel("f(t)");
 
-
-
 ## El caso completo
 N=10;
 D = createData(N);
@@ -143,7 +166,6 @@ step=0.1;
 t=0:step:N-step;
 xs=interpole([0:N-1]',D(:,1),t);
 ys=interpole([0:N-1]',D(:,2),t);
-
 
 hold on;
 plot(xs,ys,'bo-');

@@ -1,0 +1,37 @@
+EXAMEN ANPI
+
+P1
+	1.1	Revisa; no usa t -> genera respuesta sobreamortiguada SIEMPRE
+
+	1.2 Lista, no confirmada
+
+	1.3 Las ecuaciones corresponden a la fuerza, ya que es la ecuación más general que estamos usando para describir tanto la velocidad como la posición a lo largo del tiempo
+
+	1.4 Listo, no confirmada
+
+	1.5 Las soluciones tienen forma exponencial asíntota en un valor menor que cero, este comportamiento es el esperado de un sistema amortiguado, donde la función tiene valores negativos dada la posición del bloque respecto a la referencia. En vez de ver el comportamiento senoidal esperado, el sobreamortiguamiento genera una curva suave que no oscila.
+
+P2
+	2.1 En la primera y última segunda derivada ya no podemos dejar una ecuación simple, resultante de asumir los valores en los extremos. Debemos usar la expresión general que usamos para todos los puntos internos, donde el índice i-1 en cero apunta, en realidad, al índice n y el índice n+1 apunta al cero para generar, algo así como una solución cilíndrica (basado en la solución vista en clase) en donde los punto forman un ciclo en vez de una sección finita
+
+	2.2
+	Fig 2.1 Planteo manual del sistema de ecuaciones
+
+	2.3 No, esto dado que la simplificación que se utilizaba antes nos permitía eliminar dos columnas para generar una matriz tridiagonal basado en que de todas formas no estabamos inventando estos valores. Al no asumir esos valores no podemos eliminar las columnas.
+
+	2.4 Listo, no confirmada
+
+	2.5 Aproximada (mala)
+
+	2.6 Listo, no confirmada
+
+P3
+3.1
+3.2
+3.3
+3.4
+3.5
+3.6
+3.7
+3.8
+
