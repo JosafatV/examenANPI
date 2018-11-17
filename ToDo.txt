@@ -26,12 +26,30 @@ P2
 	2.6 Listo, no confirmada
 
 P3
-3.1
-3.2
-3.3
-3.4
+3.1 Listo, no confirmada
+
+3.2 Listo, no confirmada
+
+3.3 LISTO
+
+3.4 Listo, no confirmada
+
 3.5
-3.6
+
+3.6 Listo, no confirmada
+
 3.7
+
 3.8
+
+
+
+
+
+
+
+
+
+
+x = linsolve( A, b )
 

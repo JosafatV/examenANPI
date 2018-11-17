@@ -46,29 +46,55 @@ function p=calcPosition(dists,emisorPos,option=1)
   ## ##################
   
   M = zeros(dim,4); 
-  M(:,1) = M(:,1).+1; # Fill first column
   
     ## Fill in the positions
   for i = 1:dim
-    ei = [0; emisorPos(:,i)]; # make a 4x1 column with the position of one emitter
+    ei = [1; emisorPos(:,i)]; # make a 4x1 column with the position of one emitter
     M(i,:) = M(i,:) + transpose(ei); # fill the row by adding the position
   endfor
-  
-  display (M)
 
   ## ##################
   ## ## Problema 3.2 ##
   ## ##################
-  ## Construya el vector b
-  b = zeros(dim,1); ## <<< Ponga su solución aquí
+    
+  # obtain magnitud of the position vector of emitters 
+  b = zeros(dim,1);
+  
+  # obtain column with the square of distances
+  dis2 = transpose (dists);
+  dis2 = dis2 .* dis2;
+
+  b = b .+ dis2;
+  
+  for i = 1:dim
+      ei = norm( emisorPos(:,i) );
+      ei = ei * ei;
+      b(i) = b(i) - ei;
+  endfor
 
   ## ##################
   ## ## Problema 3.3 ##
   ## ##################
 
   ## Calcule la matriz seudo-inversa utilizando SVD
-  iM=pinv(M); ## <<< Ponga su solución aquí (se busca calcular esto con SVD)
-
+  [v, w ,u] = svd(M, "econ");
+     
+  # Get the inverse values of the diagonal. Rewrites w
+  for i=1:length(w);
+    if (w(i, i) == 0)
+      wi = 0;
+    else
+      wi = 1/w(i, i);
+    endif
+    w(i,i) = wi;
+  endfor
+  
+  #calculate inverse
+  piM = v * w * transpose(u);
+  M = transpose(piM); # rewrite M as to not modify the code given
+  
+  iM=pinv(M);
+  
   ## Verifique que iM y pinv(M) son lo mismo
   if (norm(iM-pinv(M),"fro") > 1e-6)
     error("Matriz inversa calculada con SVD incorrecta");
@@ -79,9 +105,9 @@ function p=calcPosition(dists,emisorPos,option=1)
   ## ##################
   
   ## Calcule la solución particular
-  hatp=zeros(4,1); ## <<< Ponga su solución aquí
+  hatp=zeros(4,1);
+  hatp = M * b;  
     
-  
   ## El caso de 3 dimensiones tiene dos posibles soluciones:
   if (dim==3)
     ## Con 3 emisores, calcule las dos posibles posiciones
@@ -89,18 +115,36 @@ function p=calcPosition(dists,emisorPos,option=1)
     ## ##################
     ## ## Problema 3.5 ##
     ## ##################
-
-    ## >>> Ponga su solución aquí <<<
     p=zeros(3,1);
+    n=ones(4,1);
+    
+    # n = null(M);
+
+    a = n(2)*n(2) + n(3)*n(3) + n(4)*n(4);
+    b = 2 * ( hatp(2)*n(2) + hatp(3)*n(3) + hatp(4)*n(4) );
+    c = hatp(2)*hatp(2) + hatp(3)*hatp(3) + hatp(4)*hatp(4) - hatp(1);
+    
+    #Calcula una función cuadrática con la fórmula alternativa y precisión doble
+  	disc = sqrt((b^2)-(4*a*c)); # calculo del discriminante 
+	  if (option)
+	  	lambda = -2*c/(b+disc);
+	  else
+	  	lambda = -2*c/(b-disc);
+	  endif
+    
+    display (lambda)
+      
+    p = hatp + lambda * n;
+    
   else 
     ## Caso general de más de tres dimensiones
 
     ## ##################
     ## ## Problema 3.6 ##
     ## ##################
-
-    ## >>> Ponga su solución aquí <<<
-    p=zeros(3,1);
+    
+    p = hatp(2: 4);
+    
   endif
   
 endfunction
