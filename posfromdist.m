@@ -135,7 +135,7 @@ function p=calcPosition(dists,emisorPos,option=1)
     # lambda must be real
     if (imag(lambda) != 0)
       #According to Norrdine if the system is not solvable aproximate with the real part:
-      real(lambda);
+      lambda = real(lambda);
     endif
       
     p = hatp + lambda * n;
@@ -201,17 +201,17 @@ function p=calcPositions(dists,emisorPos,option=1)
       
       #aproximación de la primer y segunda derivada
       if ( i>=2 )
-        dp(i,:) = (p(i,:)-p(i-1,:)) / dt;
+        dp(i,:) = (p(i,:)-p(i-1,:));# / dt;
         dp(i,:) = dp(i,:)*lamda - lamda * dp(i-1,:);
       endif
       
       if ( i>=3 )
-          d2p(i,:) = (p(i,:)-2*p(i-1,:)+p(i-2,:)) / dt*dt;
+          d2p(i,:) = (p(i,:)-2*p(i-1,:)+p(i-2,:));# / dt*dt;
           d2p(i,:) = lamda.*d2p(i,:) - (1-lamda).*d2p(i-1,:);
       endif
 
-        ## Actualice la predicción (CRASHES OCTAVE -> data values greater than float capacity)
-      #p(i,:) = p(i,:) + dp(i,:)*dt + 0.5*(d2p(i,:)*dt*dt);
+        ## Actualice la predicción
+      p(i,:) = p(i,:) + dp(i,:).*dt + 0.5.*(d2p(i,:).*dt.*dt);
       
   endfor
   
