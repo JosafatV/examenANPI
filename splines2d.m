@@ -11,8 +11,8 @@
 
 ## NOMBRE: Josafat Vargas Gamboa
 ## CARNE:  2013030892
-2;
 
+2;
 
 ## Construya algunos datos 2D para el problema
 ## N: Número de datos.  Cada fila de la matriz tendrá un punto.

@@ -13,6 +13,7 @@
 ## CARNE:  2013030892
 
 3;
+
 ## Cargue los datos de distancias
 ##
 ## Cada columna de D tiene las distancias a un sensor fijo en el
@@ -63,7 +64,6 @@ function p=calcPosition(dists,emisorPos,option=1)
   # obtain column with the square of distances
   dis2 = transpose (dists);
   dis2 = dis2 .* dis2;
-
   b = b .+ dis2;
   
   for i = 1:dim
@@ -71,6 +71,8 @@ function p=calcPosition(dists,emisorPos,option=1)
       ei = ei * ei;
       b(i) = b(i) - ei;
   endfor
+  
+  iM=pinv(M);
 
   ## ##################
   ## ## Problema 3.3 ##
@@ -90,13 +92,11 @@ function p=calcPosition(dists,emisorPos,option=1)
   endfor
   
   #calculate inverse
-  piM = v * w * transpose(u);
-  M = transpose(piM); # rewrite M as to not modify the code given
-  
-  iM=pinv(M);
-  
+  piM = transpose(v * w * transpose(u));
+  #M = piM; # rewrite M as to not modify the code given
+
   ## Verifique que iM y pinv(M) son lo mismo
-  if (norm(iM-pinv(M),"fro") > 1e-6)
+  if (norm(iM-piM,"fro") > 1e-6)
     error("Matriz inversa calculada con SVD incorrecta");
   endif
 
@@ -105,8 +105,8 @@ function p=calcPosition(dists,emisorPos,option=1)
   ## ##################
   
   ## Calcule la solución particular
-  hatp=zeros(4,1);
-  hatp = M * b;  
+  hatp = zeros(4,1);
+  hatp = piM * b;  
     
   ## El caso de 3 dimensiones tiene dos posibles soluciones:
   if (dim==3)
@@ -117,24 +117,29 @@ function p=calcPosition(dists,emisorPos,option=1)
     ## ##################
     p=zeros(3,1);
     n=ones(4,1);
+    n=null(M);
     
-    # n = null(M);
-
     a = n(2)*n(2) + n(3)*n(3) + n(4)*n(4);
-    b = 2 * ( hatp(2)*n(2) + hatp(3)*n(3) + hatp(4)*n(4) );
+    b = 2 * ( hatp(2)*n(2) + hatp(3)*n(3) + hatp(4)*n(4) - 0.5*hatp(1) );
     c = hatp(2)*hatp(2) + hatp(3)*hatp(3) + hatp(4)*hatp(4) - hatp(1);
     
     #Calcula una función cuadrática con la fórmula alternativa y precisión doble
-  	disc = sqrt((b^2)-(4*a*c)); # calculo del discriminante 
+  	disc = sqrt((b*b)-(4*a*c)); # calculo del discriminante 
+    
 	  if (option)
-	  	lambda = -2*c/(b+disc);
+	  	lambda = -b+disc/(2*a);
 	  else
-	  	lambda = -2*c/(b-disc);
+	  	lambda = -b-disc/(2*a);
 	  endif
     
-    display (lambda)
+    # lambda must be real
+    if (imag(lambda) != 0)
+      #According to Norrdine if the system is not solvable aproximate with the real part:
+      real(lambda);
+    endif
       
     p = hatp + lambda * n;
+    p = p(2: 4); # remove distance value
     
   else 
     ## Caso general de más de tres dimensiones
@@ -143,7 +148,7 @@ function p=calcPosition(dists,emisorPos,option=1)
     ## ## Problema 3.6 ##
     ## ##################
     
-    p = hatp(2: 4);
+    p = hatp(2: 4); # remove distance value
     
   endif
   
@@ -164,13 +169,13 @@ function p=calcPositions(dists,emisorPos,option=1)
 
   ## Reserve memoria para todos los puntos en la trayectoria
   p=zeros(k,3);
+  dp=zeros(k,3);
+  d2p=zeros(k,3);
 
   if (option==3)
     
     predPos=[2;0;1]; ## Predicción inicial de posición
-
-    predVel=[0;0;0];
-    predAcc=[0;0;0];
+    
     ## Para cada punto en la secuencia
     for i=1:k
 
@@ -180,20 +185,36 @@ function p=calcPositions(dists,emisorPos,option=1)
       
       ## Verifique cuál solución está más cerca de la predicción
       if (norm(predPos-sol1) < norm(predPos-sol2))
-	p(i,:) = sol1;
+	      p(i,:) = sol1;
       else
-	p(i,:) = sol2;
+	      p(i,:) = sol2;
       endif
 
       ## ##################
       ## ## Problema 3.7 ##
       ## ##################
+
+      # asumo una distancia de paso constante y un lambda subrelajado
+      dt = 0.1;
+      lamda = 0.8;
+      p(1,:) = transpose(predPos);
       
-      ## >>> Complete su solución aquí <<<
+      #aproximación de la primer y segunda derivada
+      if ( i>=2 )
+        dp(i,:) = (p(i,:)-p(i-1,:)) / dt;
+        dp(i,:) = dp(i,:)*lamda - lamda * dp(i-1,:);
+      endif
       
-      ## Actualice la predicción
+      if ( i>=3 )
+          d2p(i,:) = (p(i,:)-2*p(i-1,:)+p(i-2,:)) / dt*dt;
+          d2p(i,:) = lamda.*d2p(i,:) - (1-lamda).*d2p(i-1,:);
+      endif
+
+        ## Actualice la predicción (CRASHES OCTAVE -> data values greater than float capacity)
+      #p(i,:) = p(i,:) + dp(i,:)*dt + 0.5*(d2p(i,:)*dt*dt);
       
-    endfor
+  endfor
+  
   else
     ## Para todos los puntos en la trayectoria
     for i=1:k
@@ -215,12 +236,50 @@ function d=calcDistances(pos,emisorPos)
   ## Calcule la distancia a cada emisor, dada la posición "pos" del
   ## objeto y las posiciones de los emisores.
   
+  d=zeros(rows(pos),5);
+  
   ## ##################
   ## ## Problema 3.8 ##
   ## ##################
-
-  ## >>> Ponga su solución aquí <<<
-  d=zeros(rows(pos),1);
+  
+  for i = 1:rows(pos)
+      #calculo para el primer emisor
+    dx = pos(i, 1) - emisorPos(1, 1);
+    dy = pos(i, 2) - emisorPos(2, 1);
+    dz = pos(i, 3) - emisorPos(3, 1);
+    di = sqrt(dx*dx+dy*dy+dz*dz);
+    d(i, 1) = di;
+    
+        #calculo para el segundo emisor
+    dx = pos(i, 1) - emisorPos(1, 2);
+    dy = pos(i, 2) - emisorPos(2, 2);
+    dz = pos(i, 3) - emisorPos(3, 2);
+    di = sqrt(dx*dx+dy*dy+dz*dz);
+    d(i, 2) = di;
+    
+        #calculo para el tercer emisor
+    dx = pos(i, 1) - emisorPos(1, 3);
+    dy = pos(i, 2) - emisorPos(2, 3);
+    dz = pos(i, 3) - emisorPos(3, 3);
+    di = sqrt(dx*dx+dy*dy+dz*dz);
+    d(i, 3) = di;
+    
+        #calculo para el cuarto emisor
+    dx = pos(i, 1) - emisorPos(1, 4);
+    dy = pos(i, 2) - emisorPos(2, 4);
+    dz = pos(i, 3) - emisorPos(3, 4);
+    di = sqrt(dx*dx+dy*dy+dz*dz);
+    d(i, 4) = di;
+    
+        #calculo para el quinto emisor
+    dx = pos(i, 1) - emisorPos(1, 5);
+    dy = pos(i, 2) - emisorPos(2, 5);
+    dz = pos(i, 3) - emisorPos(3, 5);
+    di = sqrt(dx*dx+dy*dy+dz*dz);
+    d(i, 5) = di;
+    
+  endfor
+  
 endfunction
 
 
@@ -240,14 +299,15 @@ function testCase(n,D,E,fig1)
   printf("Probando el caso de %i emisores\n",n);
 
   ## Prueba unitaria: calcule la posición del primer dato
-  p=calcPosition(D(1,1:n),E)
+  p=calcPosition(D(1,1:n),E);
   
   ## Calcule las posiciones a partir de las distancias
   p=calcPositions(D(:,1:n),E);
 
   ## Distancias a posiciones estimadas
+  
   ed=calcDistances(p,E);
-
+  
   ## Errores
   err=(ed-D);
 
