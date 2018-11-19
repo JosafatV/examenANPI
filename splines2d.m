@@ -37,43 +37,48 @@ endfunction
 ## retorne fpp con los valores de la segunda derivada en cada posición t
 function fpp=findDerivs(x, f)
   #assert(length(f)==length(x));
-
-  N=length(x)-1; # Número de subintervalos
+  
+  N=length(x); # Número de subintervalos
   
   ## Arme el sistema de ecuaciones
-  M  =eye(N+1,N+1);
-  fpp=zeros(N+1,1);
-  b  =zeros(N+1,1);
+  M  =eye(N,N);
+  fpp=zeros(N,1);
+  b  =zeros(N,1);
 
   ## ################## 
   ## ## Problema 2.4 ##
   ## ################## 
 
-  ## >>> Ponga su solución aquí <<<
   for i = 1:N
-    imo = i-1;
+    
+    # i plus one 
     ipo = i+1;
     
     # wrap-around
     if (ipo>N)
       ipo = 1;
     endif
-    if (imo == 0)
-      imo = N;
+    
+    # i plus two
+    ipt = ipo+1;
+    
+    # wrap-around
+    if (ipt>N)
+      ipt = 1;
     endif
     
-    # isnert values
-    M(i,imo)=x(i)-x(imo);
-    M(i,i  )=x(ipo)-x(imo);
-    M(i,ipo)=x(ipo)-x(i);
-    
-    b(i) = (6*(f(ipo)-f(i))/(x(ipo)-x(i)) )-( 6*(f(i)-f(imo))/(x(i)-x(imo)) );
+    # insert values
+    M(i,i)=x(ipo)-x(i);
+    M(i,ipo)=2*(x(ipt)-x(i));
+    M(i,ipt)=x(ipt)-x(ipo);
+
+    b(i) = ( 6*(f(ipt)-f(ipo))/(x(ipt)-x(ipo)) ) - ( 6*(f(ipo)-f(i))/(x(ipo)-x(i)) );
     
   endfor
 
-  
   ## Resuelva el sistema
-  fpp = M\b;
+  #fpp = M\b;
+  fpp = linsolve( M, b ); # equivalent
   
 endfunction
 
@@ -109,7 +114,7 @@ function fs = interpole(t,f,ts)
       l = length(t);
     endif
 
-    #common expression
+    # common expression
     titl = t(i)-t(l);
     tlti = t(l)-t(i);
 
@@ -149,7 +154,7 @@ xlabel("t");
 ylabel("f(t)");
 
 ## El caso completo
-N=10;
+N = 10;
 D = createData(N);
 
 ## ##################

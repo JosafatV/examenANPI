@@ -21,7 +21,7 @@ P2
 
 	2.4 Listo, no confirmada
 
-	2.5 Aproximada (mala)
+	2.5 Aproximada (mejor)
 
 	2.6 Listo, no confirmada
 
@@ -40,16 +40,6 @@ P3
 
 3.7
 
-3.8
+3.8 Listo, no confirmada
 
-
-
-
-
-
-
-
-
-
-x = linsolve( A, b )
 

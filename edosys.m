@@ -49,12 +49,12 @@ function [t,x] = eulersys(tn,Dt)
   ## Resuelve el sistema de ecuaciones con Euler
   for i = 1:n
     ti = t(i);
-    vi = v(i);
     xi = x(i);
+    vi = v(i);
     
-    v(i+1) = vi+F(xi, vi, ti)*Dt;
     #x(i+1) = xi+F(xi, vi, ti)*Dt;
     x(i+1) = xi+F(xi, vi, ti)*Dt+(vi*m)*Dt*Dt*0.5; #Euler para orden superior
+    v(i+1) = vi+F(xi, vi, ti)*Dt;
     
    endfor
    
@@ -125,7 +125,6 @@ function [t,x] = rksys(tn,Dt)
   endfor
 
 endfunction
-
 
 figure(2,"name","RK");
 hold off;
