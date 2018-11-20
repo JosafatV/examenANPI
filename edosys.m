@@ -52,9 +52,8 @@ function [t,x] = eulersys(tn,Dt)
     xi = x(i);
     vi = v(i);
     
-    #x(i+1) = xi+F(xi, vi, ti)*Dt;
-    x(i+1) = xi+F(xi, vi, ti)*Dt+(vi*m)*Dt*Dt*0.5; #Euler para orden superior
-    v(i+1) = vi+F(xi, vi, ti)*Dt;
+    x(i+1) = xi+vi*Dt;
+    v(i+1) = vi+F(xi, vi, ti)/m*Dt;
     
    endfor
    
@@ -105,14 +104,14 @@ function [t,x] = rksys(tn,Dt)
       xi = x(i); #i=1: -1
       
           #calculate l and k values
-    k1 = F(xi, vi, ti)*Dt;
-        l1 = F(xi, vi, ti)*Dt;
-    k2 = F(xi+k1*0.5, vi+l1*0.5, ti+0.5*Dt)*Dt;
-        l2 = F(xi+k1*0.5, vi+l1*0.5, ti+0.5*Dt)*Dt;
-    k3 = F(xi+k2*0.5, vi+l2*0.5, ti+0.5*Dt)*Dt;
-        l3 = F(xi+k2*0.5, vi+l1*0.5, ti+0.5*Dt)*Dt;
-    k4 = F(xi+k3, vi+l3, ti+Dt)*Dt;
-        l4 = F(xi+k3, vi+l3, ti+Dt)*Dt;
+    k1 = vi*Dt;
+        l1 = F(xi, vi, ti)/m*Dt;
+    k2 = vi*Dt;
+        l2 = F(xi+k1*0.5, vi+l1*0.5, ti+0.5*Dt)/m*Dt;
+    k3 = vi*Dt;
+        l3 = F(xi+k2*0.5, vi+l1*0.5, ti+0.5*Dt)/m*Dt;
+    k4 = vi*Dt;
+        l4 = F(xi+k3, vi+l3, ti+Dt)/m*Dt;
 
     #calculate slope
     Xphi = (1/6)*(k1 + 2*k2 + 2*k3 + k4);
