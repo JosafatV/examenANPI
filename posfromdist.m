@@ -193,25 +193,41 @@ function p=calcPositions(dists,emisorPos,option=1)
       ## ##################
       ## ## Problema 3.7 ##
       ## ##################
-
+      
       # asumo una distancia de paso constante y un lambda subrelajado
       dt = 0.1;
-      lamda = 0.8;
-      p(1,:) = transpose(predPos);
+      lambda = 0.8;
+      imo = i-1;
+      imt = i-2;
       
-      #aproximación de la primer y segunda derivada
-      if ( i>=2 )
-        dp(i,:) = (p(i,:)-p(i-1,:));# / dt;
-        dp(i,:) = dp(i,:)*lamda - lamda * dp(i-1,:);
+      if ( imo<1 )
+        imo = 1;
       endif
       
-      if ( i>=3 )
-          d2p(i,:) = (p(i,:)-2*p(i-1,:)+p(i-2,:));# / dt*dt;
-          d2p(i,:) = lamda.*d2p(i,:) - (1-lamda).*d2p(i-1,:);
+      if (imt<1)
+        imt = 1;
       endif
 
+        # toma de valores a utilziar
+      x  = p(i, :);
+      xi = p(imo, :);
+      xii= p(imt, :);
+      v  = dp(i, :);
+      vi = dp(imo, :);
+      a  = d2p(i, :);
+      ai = d2p(imo, :);
+      
+        #aproximación de la primer y segunda derivada
+      v = x-xi;
+      v = lambda*v - (1-lambda)*vi;
+      dp(i,:) = v;
+
+      a = x - 2*xi + xii;
+      #a = lambda*a - (1-lambda)*ai;
+      d2p(i,:) = a;
+      
         ## Actualice la predicción
-      p(i,:) = p(i,:) + dp(i,:).*dt + 0.5.*(d2p(i,:).*dt.*dt);
+      p(i,:) = x + v*dt + 0.5*a*dt*dt;
       
   endfor
   

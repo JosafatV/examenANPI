@@ -1,7 +1,7 @@
 EXAMEN ANPI
 
 P1
-	1.1	Revisa; no usa t -> genera respuesta sobreamortiguada SIEMPRE
+	1.1	Revisar; no usa t -> genera respuesta sobreamortiguada SIEMPRE
 
 	1.2 Lista, no confirmada
 
@@ -11,8 +11,11 @@ P1
 
 	1.5 Las soluciones tienen forma exponencial asíntota en un valor menor que cero, este comportamiento es el esperado de un sistema amortiguado, donde la función tiene valores negativos dada la posición del bloque respecto a la referencia. En vez de ver el comportamiento senoidal esperado, el sobreamortiguamiento genera una curva suave que no oscila.
 
+
 P2
-	2.1 En la primera y última segunda derivada ya no podemos dejar una ecuación simple, resultante de asumir los valores en los extremos. Debemos usar la expresión general que usamos para todos los puntos internos, donde el índice i-1 en cero apunta, en realidad, al índice n y el índice n+1 apunta al cero para generar, algo así como una solución cilíndrica (basado en la solución vista en clase) en donde los punto forman un ciclo en vez de una sección finita
+	2.1 En la primera y última segunda derivada ya no podemos dejar una ecuación simple, resultante de asumir los valores en los extremos. Debemos usar la expresión general que usamos para todos los puntos internos, donde el índice i-1 en cero apunta, en realidad, al índice n y el índice n+1 apunta al cero para generar, algo así como una solución cilíndrica (basado en la solución vista en clase) en donde los punto forman un ciclo en vez de una sección finita. 
+
+Con esto llenamos la matriz siguiendo el caso n visto en clase, donde el sistema de ecuaciones requeiere de dos valores anteriores, con los valores anterios a cero: n y n-1. Llenamos entonces la matriz siguiendo este algoritmo que nos genera una forma tridiagonal con algunos valores en zonas externas, producto de llegar al final de las columnas y tener n+1 apuntando a cero
 
 	2.2
 	Fig 2.1 Planteo manual del sistema de ecuaciones
@@ -34,11 +37,11 @@ P3
 
 3.4 Listo, no confirmada
 
-3.5
+3.5 Listo, no confirmada
 
 3.6 Listo, no confirmada
 
-3.7
+3.7 Revisar; no selecciona opción esperada
 
 3.8 Listo, no confirmada
 
