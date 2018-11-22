@@ -72,7 +72,7 @@ function fpp=findDerivs(x, f)
     M(i,ipo)=2*(x(ipt)-x(i));
     M(i,ipt)=x(ipt)-x(ipo);
 
-    b(i) = ( 6*(f(ipt)-f(ipo))/(x(ipt)-x(ipo)) ) - ( 6*(f(ipo)-f(i))/(x(ipo)-x(i)) );
+    b(i) = 6*( (f(ipt)-f(ipo))/(x(ipt)-x(ipo)) ) - 6*( (f(ipo)-f(i))/(x(ipo)-x(i)) );
     
   endfor
 
@@ -100,13 +100,12 @@ function fs = interpole(t,f,ts)
   ## ##################
   ## ## Problema 2.5 ##
   ## ##################
-  pool = 1:length(t);
 
   for h = 1:length(ts)
     
     # turns a value of ts into a valid index for t
     # allows the insertion of ts to get a vector with all the corresponding index
-    i = lookup(pool, ts(h), "r") + 1;
+    i = lookup(t, ts(h), "l")
     l = i-1;
     
     # wrap-around
