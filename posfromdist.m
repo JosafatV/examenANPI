@@ -93,9 +93,8 @@ function p=calcPosition(dists,emisorPos,option=1)
   
   #calculate inverse
   piM = transpose(v * w * transpose(u));
-  #M = piM; # rewrite M as to not modify the code given
 
-  ## Verifique que iM y pinv(M) son lo mismo
+  ## Verifique que iM = pinv(M) y piM, obtenida con SVD son lo mismo
   if (norm(iM-piM,"fro") > 1e-6)
     error("Matriz inversa calculada con SVD incorrecta");
   endif
@@ -196,7 +195,7 @@ function p=calcPositions(dists,emisorPos,option=1)
       
       # asumo una distancia de paso constante y un lambda subrelajado
       dt = 0.1;
-      lambda = 0.8;
+      lambda = 1.2;
       imo = i-1;
       imt = i-2;
       
@@ -211,19 +210,19 @@ function p=calcPositions(dists,emisorPos,option=1)
         # toma de valores a utilziar
       x  = p(i, :);
       xi = p(imo, :);
-      xii= p(imt, :);
       v  = dp(i, :);
       vi = dp(imo, :);
+      vii= dp(imt, :);
       a  = d2p(i, :);
       ai = d2p(imo, :);
       
-        #aproximación de la primer y segunda derivada
-      v = x-xi;
+        # aproximación de la primer y segunda derivada
+      v = (x-xi);#/dt;
       v = lambda*v - (1-lambda)*vi;
       dp(i,:) = v;
 
-      a = x - 2*xi + xii;
-      #a = lambda*a - (1-lambda)*ai;
+      a = (v - 2*vi + vii); # / dt*dt;
+      a = lambda*a - (1-lambda)*ai;
       d2p(i,:) = a;
       
         ## Actualice la predicción
@@ -259,40 +258,15 @@ function d=calcDistances(pos,emisorPos)
   ## ##################
   
   for i = 1:rows(pos)
-      #calculo para el primer emisor
-    dx = pos(i, 1) - emisorPos(1, 1);
-    dy = pos(i, 2) - emisorPos(2, 1);
-    dz = pos(i, 3) - emisorPos(3, 1);
-    di = sqrt(dx*dx+dy*dy+dz*dz);
-    d(i, 1) = di;
     
-        #calculo para el segundo emisor
-    dx = pos(i, 1) - emisorPos(1, 2);
-    dy = pos(i, 2) - emisorPos(2, 2);
-    dz = pos(i, 3) - emisorPos(3, 2);
-    di = sqrt(dx*dx+dy*dy+dz*dz);
-    d(i, 2) = di;
-    
-        #calculo para el tercer emisor
-    dx = pos(i, 1) - emisorPos(1, 3);
-    dy = pos(i, 2) - emisorPos(2, 3);
-    dz = pos(i, 3) - emisorPos(3, 3);
-    di = sqrt(dx*dx+dy*dy+dz*dz);
-    d(i, 3) = di;
-    
-        #calculo para el cuarto emisor
-    dx = pos(i, 1) - emisorPos(1, 4);
-    dy = pos(i, 2) - emisorPos(2, 4);
-    dz = pos(i, 3) - emisorPos(3, 4);
-    di = sqrt(dx*dx+dy*dy+dz*dz);
-    d(i, 4) = di;
-    
-        #calculo para el quinto emisor
-    dx = pos(i, 1) - emisorPos(1, 5);
-    dy = pos(i, 2) - emisorPos(2, 5);
-    dz = pos(i, 3) - emisorPos(3, 5);
-    di = sqrt(dx*dx+dy*dy+dz*dz);
-    d(i, 5) = di;
+    for e = 1:5
+        #calculo de distancia para el emisor
+      dx = pos(i, 1) - emisorPos(1, e);
+      dy = pos(i, 2) - emisorPos(2, e);
+      dz = pos(i, 3) - emisorPos(3, e);
+      di = sqrt(dx*dx+dy*dy+dz*dz);
+      d(i, e) = di;
+    endfor
     
   endfor
   
